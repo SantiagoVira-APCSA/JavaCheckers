@@ -1,5 +1,8 @@
+import java.util.Scanner;
+
 public class Game {
     private Tile[][] board;
+    private int turn;
 
     public Game() {
         board = new Tile[8][8];
@@ -42,6 +45,8 @@ public class Game {
             }
             System.out.println();
         }
+
+        move();
     }
 
     public void move() {
@@ -88,5 +93,13 @@ public class Game {
 
     public Tile getTile(int x, int y) {
         return board[y][x];
+    }
+
+    public boolean isWhiteMove() {
+        return turn % 2 == 0;
+    }
+
+    public boolean inRange(int num) {
+        return (0 <= num && num < 8);
     }
 }

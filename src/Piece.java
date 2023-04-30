@@ -6,7 +6,8 @@ public class Piece {
         this.canMove = canMove;
         this.isWhite = isWhite;
         isKing = false;
-        symbol = isKing ? "O" : "0";
+        symbol = isKing ? "O" : "o";
+        color = isWhite ? Color.WHITE : Color.RED;
     }
 
     public String getSymbol() {
