@@ -18,4 +18,12 @@ public class Tile {
     public void setPiece(Piece piece) {
         this.piece = piece;
     }
+
+    public boolean pieceCanMove() {
+        return piece != null && piece.canMove();
+    }
+
+    public boolean isEmpty() {
+        return piece == null;
+    }
 }
