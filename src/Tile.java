@@ -27,12 +27,16 @@ public class Tile {
         this.piece = piece;
     }
 
-    public boolean pieceCanMove() {
-        return piece != null && piece.canMove();
+    public boolean pieceCanMove(boolean isWhiteMove) {
+        return piece != null && isWhiteMove == piece.isWhite();
     }
 
     public boolean isEmpty() {
         return piece == null;
+    }
+
+    public boolean isWhite() {
+        return piece.isWhite();
     }
 
     public Piece movePiece() {

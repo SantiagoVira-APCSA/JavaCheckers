@@ -1,9 +1,9 @@
 import java.util.Scanner;
 
 public class Game {
-    private Tile[][] board;
+    private final Tile[][] board;
     private int turn;
-    private Scanner scan;
+    private final Scanner scan;
 
     public Game() {
         board = new Tile[8][8];
@@ -20,13 +20,13 @@ public class Game {
         for (int y = 0; y < 3; y++) {
             for (int x = (y + 1) % 2; x < 8; x += 2) {
                 Tile t = getTile(x, y);
-                t.setPiece(new Piece(true, y == 2));
+                t.setPiece(new Piece(true));
             }
         }
         for (int y = 7; y > 4; y--) {
             for (int x = (y + 1) % 2; x < 8; x += 2) {
                 Tile t = getTile(x, y);
-                t.setPiece(new Piece(false, y == 5));
+                t.setPiece(new Piece(false));
             }
         }
     }
@@ -48,26 +48,25 @@ public class Game {
             System.out.println();
         }
 
-        move();
     }
 
     public void move() {
         int[] toMove = getCoordsFromInput();
-        int x = toMove[0];
-        int y = toMove[1];
+        int x = toMove[0], y = toMove[1];
+        int row1 = nRowsAhead(y, 1), row2 = nRowsAhead(y, 2);
 
         // Check if the piece can move immediately up in either direction
-        boolean canMoveLeft = isAvailable(x - 1, y - 1);
-        boolean canMoveRight = isAvailable(x + 1, y - 1);
+        boolean canMoveLeft = isAvailable(x - 1, row1);
+        boolean canMoveRight = isAvailable(x + 1, row1);
         boolean canJumpLeft = false, canJumpRight = false;
 
         // If the squares immediately above are taken, check if the piece can jump
-        if (!canMoveLeft) canJumpLeft = isAvailable(x - 2, y - 2);
-        if (!canMoveRight) canJumpRight = isAvailable(x + 2, y - 2);
+        if (!canMoveLeft) canJumpLeft = isAvailable(x - 2, row2);
+        if (!canMoveRight) canJumpRight = isAvailable(x + 2, row2);
 
         // Check if choice
         if ((canMoveLeft || canJumpLeft) && (canMoveRight || canJumpRight)) {
-            String choice = "";
+            String choice;
             do {
                 System.out.print("Which direction do you want to move? (L or R): ");
                 choice = scan.nextLine().trim().toUpperCase();
@@ -81,7 +80,28 @@ public class Game {
                 canMoveLeft = false;
             }
         }
-        if (canMoveLeft) getTile(x - 1, y - 1).setPiece(getTile(x, y).movePiece());
+
+        Tile newTile = null;
+        if (canMoveLeft) newTile = getTile(x - 1, row1);
+        else if (canMoveRight) newTile = getTile(x + 1, row1);
+        else if (canJumpLeft) {
+            newTile = getTile(x - 2, row2);
+            if (getTile(x - 1, row1).isWhite() != getTile(x, y).isWhite()) getTile(x - 1, row1).movePiece();
+        } else if (canJumpRight) {
+            newTile = getTile(x + 2, row2);
+            if (getTile(x + 1, row1).isWhite() != getTile(x, y).isWhite()) getTile(x + 1, row1).movePiece();
+        }
+
+        if (newTile != null) {
+            newTile.setPiece(getTile(x, y).movePiece());
+            turn++;
+        }
+    }
+
+    private int nRowsAhead(int y, int n) {
+        // Return the current row + or - n, depending on whose turn it is
+        // Helper function for move()
+        return isWhiteMove() ? y + n : y - n;
     }
 
     public boolean isAvailable(int x, int y) {
@@ -90,9 +110,10 @@ public class Game {
     }
 
     public int[] getCoordsFromInput() {
-        String xLetter = "";
+        String xLetter;
         int x, y;
         String letter = "ABCDEFGH";
+        boolean hasMoves;
         do {
             do {
                 System.out.print("Which horizontal position do you want to move? (A-H): ");
@@ -105,7 +126,11 @@ public class Game {
                 y = scan.nextInt() - 1;
                 scan.nextLine();
             } while (!inRange(y));
-        } while (!getTile(x, y).pieceCanMove());
+
+            int row1 = nRowsAhead(y, 1), row2 = nRowsAhead(y, 2);
+            hasMoves = isAvailable(x - 1, row1) || isAvailable(x + 1, row1) ||
+                    isAvailable(x - 2, row2) || isAvailable(x + 2, row2);
+        } while (!(getTile(x, y).pieceCanMove(isWhiteMove()) && hasMoves));
 
 
         return new int[]{x, y};

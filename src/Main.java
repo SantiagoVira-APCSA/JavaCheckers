@@ -4,7 +4,9 @@ public class Main {
         game.fillBoard();
 
 
-        game.printBoard();
-        game.printBoard();
+        while (true) {
+            game.printBoard();
+            game.move();
+        }
     }
 }
