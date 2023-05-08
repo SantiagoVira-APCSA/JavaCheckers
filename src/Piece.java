@@ -1,12 +1,12 @@
 public class Piece {
-    private boolean canMove, isKing, isWhite;
-    private String symbol, color;
+    private final boolean canMove, isKing, isWhite;
+    private final String symbol, color;
 
     public Piece(boolean isWhite, boolean canMove) {
         this.canMove = canMove;
         this.isWhite = isWhite;
         isKing = false;
-        symbol = isKing ? "O" : "o";
+        symbol = "o";//isKing ? "O" : "o";
         color = isWhite ? Color.WHITE : Color.RED;
     }
 
@@ -14,7 +14,16 @@ public class Piece {
         return color + symbol;
     }
 
+    public boolean isKing() {
+        return isKing;
+    }
+
+    public boolean isWhite() {
+        return isWhite;
+    }
+
     public boolean canMove() {
         return canMove;
     }
+
 }

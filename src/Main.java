@@ -5,5 +5,6 @@ public class Main {
 
 
         game.printBoard();
+        game.printBoard();
     }
 }

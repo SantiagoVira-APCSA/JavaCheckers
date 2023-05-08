@@ -3,6 +3,7 @@ import java.util.Scanner;
 public class Game {
     private Tile[][] board;
     private int turn;
+    private Scanner scan;
 
     public Game() {
         board = new Tile[8][8];
@@ -12,6 +13,7 @@ public class Game {
             }
         }
         turn = 0;
+        scan = new Scanner(System.in);
     }
 
     public void fillBoard() {
@@ -50,17 +52,36 @@ public class Game {
     }
 
     public void move() {
-        int[] move = getCoordsFromInput();
-        int x = move[0];
-        int y = move[1];
+        int[] toMove = getCoordsFromInput();
+        int x = toMove[0];
+        int y = toMove[1];
 
         // Check if the piece can move immediately up in either direction
-        boolean canMoveLeft = isAvailable(x - 1, y + 1);
-        boolean canMoveRight = isAvailable(x + 1, y + 1);
+        boolean canMoveLeft = isAvailable(x - 1, y - 1);
+        boolean canMoveRight = isAvailable(x + 1, y - 1);
+        boolean canJumpLeft = false, canJumpRight = false;
 
         // If the squares immediately above are taken, check if the piece can jump
-        if (!canMoveLeft) canMoveLeft = isAvailable(x - 2, y + 2);
-        if (!canMoveRight) canMoveRight = isAvailable(x + 2, y + 2);
+        if (!canMoveLeft) canJumpLeft = isAvailable(x - 2, y - 2);
+        if (!canMoveRight) canJumpRight = isAvailable(x + 2, y - 2);
+
+        // Check if choice
+        if ((canMoveLeft || canJumpLeft) && (canMoveRight || canJumpRight)) {
+            String choice = "";
+            do {
+                System.out.print("Which direction do you want to move? (L or R): ");
+                choice = scan.nextLine().trim().toUpperCase();
+            } while (!(choice.equals("L") || choice.equals("R")));
+
+            if (choice.equals("L")) {
+                canJumpRight = false;
+                canMoveRight = false;
+            } else {
+                canJumpLeft = false;
+                canMoveLeft = false;
+            }
+        }
+        if (canMoveLeft) getTile(x - 1, y - 1).setPiece(getTile(x, y).movePiece());
     }
 
     public boolean isAvailable(int x, int y) {
@@ -69,25 +90,24 @@ public class Game {
     }
 
     public int[] getCoordsFromInput() {
-        Scanner s = new Scanner(System.in);
         String xLetter = "";
         int x, y;
         String letter = "ABCDEFGH";
         do {
             do {
-                System.out.println("Which horizontal position do you want to move? (A-H): ");
-                xLetter = s.nextLine().trim().toUpperCase();
+                System.out.print("Which horizontal position do you want to move? (A-H): ");
+                xLetter = scan.nextLine().trim().toUpperCase();
             } while (!letter.contains(xLetter) || xLetter.length() != 1);
             x = letter.indexOf(xLetter);
 
             do {
-                System.out.println("Which vertical position do you want to move? (1-8): ");
-                y = s.nextInt() - 1;
+                System.out.print("Which vertical position do you want to move? (1-8): ");
+                y = scan.nextInt() - 1;
+                scan.nextLine();
             } while (!inRange(y));
         } while (!getTile(x, y).pieceCanMove());
 
 
-        s.close();
         return new int[]{x, y};
     }
 

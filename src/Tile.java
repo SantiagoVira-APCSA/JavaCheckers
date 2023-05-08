@@ -1,12 +1,21 @@
 public class Tile {
-    private int x, y;
-    private String background;
+    private final int x, y;
+    private final String background;
     private Piece piece;
 
     public Tile(int x, int y) {
         this.x = x;
         this.y = y;
+        this.piece = null;
         this.background = (x + y) % 2 == 0 ? Color.RED_BACKGROUND : Color.BLACK_BACKGROUND;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
     }
 
     public void print() {
@@ -24,5 +33,11 @@ public class Tile {
 
     public boolean isEmpty() {
         return piece == null;
+    }
+
+    public Piece movePiece() {
+        Piece temp = piece;
+        piece = null;
+        return temp;
     }
 }
