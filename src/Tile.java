@@ -25,6 +25,7 @@ public class Tile {
 
     public void setPiece(Piece piece) {
         this.piece = piece;
+        if (piece.isWhite() && y == 7 || !piece.isWhite() && y == 0) piece.makeKing();
     }
 
     public boolean pieceCanMove(boolean isWhiteMove) {

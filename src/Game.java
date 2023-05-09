@@ -114,6 +114,7 @@ public class Game {
         int x, y;
         String letter = "ABCDEFGH";
         boolean hasMoves;
+        System.out.println("Player " + (isWhiteMove() ? Color.WHITE_BOLD + "White" : Color.RED_BOLD + "Red") + Color.RESET + "'s turn!");
         do {
             do {
                 System.out.print("Which horizontal position do you want to move? (A-H): ");

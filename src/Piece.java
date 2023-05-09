@@ -1,6 +1,8 @@
 public class Piece {
-    private final boolean isKing, isWhite;
-    private final String symbol, color;
+    private final boolean isWhite;
+    private boolean isKing;
+    private String symbol;
+    private final String color;
 
     public Piece(boolean isWhite) {
         this.isWhite = isWhite;
@@ -15,6 +17,11 @@ public class Piece {
 
     public boolean isKing() {
         return isKing;
+    }
+
+    public void makeKing() {
+        isKing = true;
+        symbol = "0";
     }
 
     public boolean isWhite() {
