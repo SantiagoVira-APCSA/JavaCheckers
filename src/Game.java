@@ -61,8 +61,9 @@ public class Game {
         boolean canJumpLeft = false, canJumpRight = false;
 
         // If the squares immediately above are taken, check if the piece can jump
-        if (!canMoveLeft) canJumpLeft = isAvailable(x - 2, row2);
-        if (!canMoveRight) canJumpRight = isAvailable(x + 2, row2);
+        if (!canMoveLeft) canJumpLeft = isAvailable(x - 2, row2) && tileIsOpponent(x - 1, row1);
+        if (!canMoveRight) canJumpRight = isAvailable(x + 2, row2) && tileIsOpponent(x + 1, row1);
+
 
         // Check if choice
         if ((canMoveLeft || canJumpLeft) && (canMoveRight || canJumpRight)) {
@@ -130,11 +131,17 @@ public class Game {
 
             int row1 = nRowsAhead(y, 1), row2 = nRowsAhead(y, 2);
             hasMoves = isAvailable(x - 1, row1) || isAvailable(x + 1, row1) ||
-                    isAvailable(x - 2, row2) || isAvailable(x + 2, row2);
+                    (isAvailable(x - 2, row2) && tileIsOpponent(x - 1, row1)) ||
+                    (isAvailable(x + 2, row2) && tileIsOpponent(x + 1, row1));
         } while (!(getTile(x, y).pieceCanMove(isWhiteMove()) && hasMoves));
 
 
         return new int[]{x, y};
+    }
+
+    private boolean tileIsOpponent(int x, int y) {
+        // Helper function to check if a tile is holding an opponent piece
+        return isWhiteMove() != getTile(x, y).isWhite();
     }
 
     public Tile getTile(int x, int y) {
