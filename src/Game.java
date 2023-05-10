@@ -71,6 +71,11 @@ public class Game {
         int x = toMove[0], y = toMove[1];
         int row1 = nRowsAhead(y, 1), row2 = nRowsAhead(y, 2);
 
+        if (getTile(x, y).isKing()) {
+            moveKing(x, y);
+            return;
+        }
+
         // Check if the piece can move immediately up in either direction
         boolean canMoveLeft = isAvailable(x - 1, row1);
         boolean canMoveRight = isAvailable(x + 1, row1);
@@ -113,6 +118,77 @@ public class Game {
             newTile.setPiece(getTile(x, y).movePiece());
             turn++;
         }
+    }
+
+    private void moveKing(int x, int y) {
+        int row1 = y - 2, row2 = y - 1, row3 = y + 1, row4 = y + 2;
+
+        // Check if the piece can move immediately up in either direction
+        boolean canJumpTopLeft = isAvailable(x - 2, row1) && tileIsOpponent(x - 1, row2);
+        boolean canJumpTopRight = isAvailable(x + 2, row1) && tileIsOpponent(x + 1, row2);
+        boolean canMoveTopLeft = isAvailable(x - 1, row2);
+        boolean canMoveTopRight = isAvailable(x + 1, row2);
+        boolean canJumpBtmLeft = isAvailable(x - 2, row4) && tileIsOpponent(x - 1, row3);
+        boolean canJumpBtmRight = isAvailable(x + 2, row4) && tileIsOpponent(x + 1, row3);
+        boolean canMoveBtmLeft = isAvailable(x - 1, row3);
+        boolean canMoveBtmRight = isAvailable(x + 1, row3);
+
+        // 0: TL, 1: TR, 2: BL, 3: BR
+        int moveIdx = -1;
+        boolean isJump = false;
+
+        boolean TL = (canMoveTopLeft || canJumpTopLeft), TR = (canMoveTopRight || canJumpTopRight),
+                BL = (canMoveBtmLeft || canJumpBtmLeft), BR = (canMoveBtmRight || canJumpBtmRight);
+
+        // Check if choice
+        if (TR & (TL || BL || BR) ||
+                BL & (TR || TL || BR) ||
+                BR & (TR || BL || TL)) {
+            String choice;
+            do {
+                System.out.printf("Which direction do you want to move? (%s%s%s%s): ", TL ? "TL, " : "", TR ? "TR" + (BL || BR ? ", " : "") : "", BL ? "BL" + (BR ? ", " : "") : "", BR ? "BR" : "");
+                choice = scan.nextLine().trim().toUpperCase();
+            } while (!(choice.equals("TL") && TL || choice.equals("TR") && TR || choice.equals("BL") && BL || choice.equals("BR") && BR));
+
+            switch (choice) {
+                case "TL" -> {
+                    moveIdx = 0;
+                    isJump = canJumpTopLeft;
+                }
+                case "TR" -> {
+                    moveIdx = 1;
+                    isJump = canJumpTopRight;
+                }
+                case "BL" -> {
+                    moveIdx = 2;
+                    isJump = canJumpBtmLeft;
+                }
+                case "BR" -> {
+                    moveIdx = 3;
+                    isJump = canJumpBtmRight;
+                }
+            }
+        } else {
+            isJump = canJumpBtmLeft || canJumpBtmRight || canJumpTopLeft || canJumpTopRight;
+            if (canMoveTopLeft || canJumpTopLeft) moveIdx = 0;
+            else if (canMoveTopRight || canJumpTopRight) moveIdx = 1;
+            else if (canMoveBtmLeft || canJumpBtmLeft) moveIdx = 2;
+            else if (canMoveBtmRight || canJumpBtmRight) moveIdx = 3;
+        }
+
+        Tile newTile;
+        int xDir = moveIdx % 2 == 0 ? -1 : 1;
+        int yDir = moveIdx < 2 ? -1 : 1;
+        int xMove = xDir * (isJump ? 2 : 1);
+        int yMove = yDir * (isJump ? 2 : 1);
+
+        newTile = getTile(x + xMove, y + yMove);
+        if (isJump) {
+            getTile(x + xDir, y + yDir).movePiece();
+        }
+
+        newTile.setPiece(getTile(x, y).movePiece());
+        turn++;
     }
 
     private int nRowsAhead(int y, int n) {
