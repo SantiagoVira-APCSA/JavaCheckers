@@ -128,7 +128,7 @@ public class Game {
 
     public int[] getCoordsFromInput() {
         String xLetter;
-        int x, y = 0;
+        int x, y;
         String letter = "ABCDEFGH";
         System.out.println("Player " + (isWhiteMove() ? Color.WHITE_BOLD + "White" : Color.RED_BOLD + "Red") + Color.RESET + "'s turn!");
         do {
@@ -157,7 +157,12 @@ public class Game {
                 scan.nextLine();
             } while (!inRange(y));
 
-            if (getTile(x, y).isWhite() != isWhiteMove()) {
+            if (getTile(x, y).isEmpty()) {
+                System.out.println(Color.RED + "There's no piece here!" + Color.RESET);
+                continue;
+            }
+
+            if (!getTile(x, y).isEmpty() && getTile(x, y).isWhite() != isWhiteMove()) {
                 System.out.println(Color.RED + "This isn't your piece!" + Color.RESET);
                 continue;
             }
@@ -173,7 +178,7 @@ public class Game {
     private boolean playerHasMoves(boolean white) {
         for (Tile[] row : board) {
             for (Tile t : row) {
-                if (t.isWhite() == white && pieceHasMoves(t.getX(), t.getY())) return true;
+                if (!t.isEmpty() && t.isWhite() == white && pieceHasMoves(t.getX(), t.getY())) return true;
             }
         }
         return false;
@@ -181,11 +186,23 @@ public class Game {
 
     private boolean tileIsOpponent(int x, int y) {
         // Helper function to check if a tile is holding an opponent piece
-        return isWhiteMove() != getTile(x, y).isWhite();
+        return !getTile(x, y).isEmpty() && isWhiteMove() != getTile(x, y).isWhite();
     }
 
     private boolean pieceHasMoves(int x, int y) {
         int row1 = nRowsAhead(y, 1), row2 = nRowsAhead(y, 2);
+        if (getTile(x, y).isKing()) {
+            // Do something else
+
+            int r1 = y - 2, r2 = y - 1, r3 = y + 1, r4 = y + 2;
+
+            return isAvailable(x - 1, r3) || isAvailable(x + 1, r3) ||
+                    isAvailable(x - 1, r2) || isAvailable(x + 1, r2) ||
+                    (isAvailable(x - 2, r4) && tileIsOpponent(x - 1, r3)) ||
+                    (isAvailable(x + 2, r4) && tileIsOpponent(x + 1, r3)) ||
+                    (isAvailable(x - 2, r1) && tileIsOpponent(x - 1, r2)) ||
+                    (isAvailable(x + 2, r1) && tileIsOpponent(x + 1, r2));
+        }
         return isAvailable(x - 1, row1) || isAvailable(x + 1, row1) ||
                 (isAvailable(x - 2, row2) && tileIsOpponent(x - 1, row1)) ||
                 (isAvailable(x + 2, row2) && tileIsOpponent(x + 1, row1));

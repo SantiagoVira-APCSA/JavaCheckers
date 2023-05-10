@@ -40,6 +40,10 @@ public class Tile {
         return piece.isWhite();
     }
 
+    public boolean isKing() {
+        return piece.isKing();
+    }
+
     public Piece movePiece() {
         Piece temp = piece;
         piece = null;
