@@ -112,9 +112,8 @@ public class Game {
 
     public int[] getCoordsFromInput() {
         String xLetter;
-        int x, y;
+        int x, y = 0;
         String letter = "ABCDEFGH";
-        boolean hasMoves;
         System.out.println("Player " + (isWhiteMove() ? Color.WHITE_BOLD + "White" : Color.RED_BOLD + "Red") + Color.RESET + "'s turn!");
         do {
             do {
@@ -122,6 +121,19 @@ public class Game {
                 xLetter = scan.nextLine().trim().toUpperCase();
             } while (!letter.contains(xLetter) || xLetter.length() != 1);
             x = letter.indexOf(xLetter);
+            boolean hasPiece = false;
+            for (int i = 0; i < 8; i++) {
+                if (getTile(x, i).pieceCanMove(isWhiteMove()) && pieceHasMoves(x, i)) {
+                    hasPiece = true;
+                    break;
+                }
+            }
+            if (!hasPiece) {
+                System.out.println(Color.RED + "You don't have a piece that can move in that column!" + Color.RESET);
+                x = 0;
+                y = 0;
+                continue;
+            }
 
             do {
                 System.out.print("Which vertical position do you want to move? (1-8): ");
@@ -129,11 +141,14 @@ public class Game {
                 scan.nextLine();
             } while (!inRange(y));
 
-            int row1 = nRowsAhead(y, 1), row2 = nRowsAhead(y, 2);
-            hasMoves = isAvailable(x - 1, row1) || isAvailable(x + 1, row1) ||
-                    (isAvailable(x - 2, row2) && tileIsOpponent(x - 1, row1)) ||
-                    (isAvailable(x + 2, row2) && tileIsOpponent(x + 1, row1));
-        } while (!(getTile(x, y).pieceCanMove(isWhiteMove()) && hasMoves));
+            if (getTile(x, y).isWhite() != isWhiteMove()) {
+                System.out.println(Color.RED + "This isn't your piece!" + Color.RESET);
+                continue;
+            }
+            if (!pieceHasMoves(x, y)) {
+                System.out.println(Color.RED + "That piece has no available moves!" + Color.RESET);
+            }
+        } while (!(getTile(x, y).pieceCanMove(isWhiteMove()) && pieceHasMoves(x, y)));
 
 
         return new int[]{x, y};
@@ -142,6 +157,13 @@ public class Game {
     private boolean tileIsOpponent(int x, int y) {
         // Helper function to check if a tile is holding an opponent piece
         return isWhiteMove() != getTile(x, y).isWhite();
+    }
+
+    private boolean pieceHasMoves(int x, int y) {
+        int row1 = nRowsAhead(y, 1), row2 = nRowsAhead(y, 2);
+        return isAvailable(x - 1, row1) || isAvailable(x + 1, row1) ||
+                (isAvailable(x - 2, row2) && tileIsOpponent(x - 1, row1)) ||
+                (isAvailable(x + 2, row2) && tileIsOpponent(x + 1, row1));
     }
 
     public Tile getTile(int x, int y) {
