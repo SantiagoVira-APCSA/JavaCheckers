@@ -16,6 +16,22 @@ public class Game {
         scan = new Scanner(System.in);
     }
 
+    public void play() {
+        fillBoard();
+        while (true) {
+            printBoard();
+            move();
+
+            // Now opponent's turn
+            // Check win
+            if (!playerHasMoves(isWhiteMove())) {
+                System.out.println("Player " + (!isWhiteMove() ? Color.WHITE_BOLD + "White" : Color.RED_BOLD + "Red") + Color.RESET + " won!");
+                break;
+            }
+        }
+
+    }
+
     public void fillBoard() {
         for (int y = 0; y < 3; y++) {
             for (int x = (y + 1) % 2; x < 8; x += 2) {
@@ -152,6 +168,15 @@ public class Game {
 
 
         return new int[]{x, y};
+    }
+
+    private boolean playerHasMoves(boolean white) {
+        for (Tile[] row : board) {
+            for (Tile t : row) {
+                if (t.isWhite() == white && pieceHasMoves(t.getX(), t.getY())) return true;
+            }
+        }
+        return false;
     }
 
     private boolean tileIsOpponent(int x, int y) {
